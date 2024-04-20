@@ -6,6 +6,7 @@ import { data } from "./data"
 import Split from "react-split"
 import {nanoid} from "nanoid"
 
+
 export default function App() {
   const [notes, setNotes] = useState([])
   const [currentNoteId, setCurrentNoteId] = useState(
