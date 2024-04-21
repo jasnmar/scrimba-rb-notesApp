@@ -12,15 +12,26 @@ export default function App() {
     const [notes, setNotes] = useState([]);
     const [currentNoteId, setCurrentNoteId] = useState("");
 
-
     const currentNote = 
     notes.find(note => note.id === currentNoteId) || notes[0]
+
+        /**
+     * Challenge:
+     * 1. Add createdAt and updatedAt properties to the notes
+     *    When a note is first created, set the `createdAt` and `updatedAt`
+     *    properties to `Date.now()`. Whenever a note is modified, set the
+     *    `updatedAt` property to `Date.now()`.
+     * 
+     * 2. TBA
+     */
 
     //Adds a note with a unique id (nanoid) to the list
     //of notes
     async function createNewNote() {
         const newNote = {
             body: "# Type your markdown note's title here",
+            createdAt: Date.now(),
+            updatedAt: Date.now()
         };
         const newNoteRef = await addDoc(notesCollection, newNote)
         setCurrentNoteId(newNoteRef.id);
