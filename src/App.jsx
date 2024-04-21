@@ -18,7 +18,8 @@ export default function App() {
      *    use JSON.parse() to turn the stringified array back
      *    into a real JS array.
      */
-    const [notes, setNotes] = useState(JSON.parse(localStorage.getItem('notes')) || []);
+    const [notes, setNotes] = useState(
+        () => JSON.parse(localStorage.getItem('notes')) || []);
     const [currentNoteId, setCurrentNoteId] = useState(
         (notes[0] && notes[0].id) || ""
     );
@@ -36,7 +37,6 @@ export default function App() {
 
 
     useEffect(()=> {
-        console.log(notes)
         localStorage.setItem('notes', JSON.stringify(notes))
     },[notes])
 
