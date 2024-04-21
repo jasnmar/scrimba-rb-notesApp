@@ -9,17 +9,8 @@ import {nanoid} from "nanoid"
 
 export default function App() {
     /**
-     * Challenge: Try to figure out a way to display only the 
-     * first line of note.body as the note summary in the
-     * sidebar.
-     * 
-     * Hint 1: note.body has "invisible" newline characters
-     * in the text every time there's a new line shown. E.g.
-     * the text in Note 1 is:
-     * "# Note summary\n\nBeginning of the note"
-     * 
-     * Hint 2: See if you can split the string into an array
-     * using the "\n" newline character as the divider
+     * Challenge: When the user edits a note, reposition
+     * it in the list of notes to the top of the list
      */
     const [notes, setNotes] = useState(
         () => JSON.parse(localStorage.getItem('notes')) || []);
@@ -43,19 +34,19 @@ export default function App() {
         localStorage.setItem('notes', JSON.stringify(notes))
     },[notes])
 
-
-
     //Checks all of the notes against their ID
     //if the ID matches, update the text
     function updateNote(text) {
 
-        setNotes((oldNotes) =>
-            oldNotes.map((oldNote) => {
-                return oldNote.id === currentNoteId
-                    ? { ...oldNote, body: text }
-                    : oldNote;
-            })
-        );
+        setNotes((oldNotes) => {
+            const newNotesArray = []
+            for(let note of oldNotes) {
+                note.id === currentNoteId ? 
+                    newNotesArray.unshift(note = {...note, body: text}) :
+                    newNotesArray.push(note)
+            }
+            return newNotesArray
+        });
     }
 
     //returns the note that matches the currentNoteId
