@@ -3,16 +3,14 @@ import './App.css'
 import Sidebar from "./components/Sidebar"
 import Editor from "./components/Editor"
 import Split from "react-split"
-import {nanoid} from "nanoid"
+import { doc, addDoc, onSnapshot, deleteDoc, setDoc } from 'firebase/firestore'
+import { db, notesCollection } from './firebase'
 
 
 export default function App() {
 
-    const [notes, setNotes] = useState(
-        () => JSON.parse(localStorage.getItem('notes')) || []);
-    const [currentNoteId, setCurrentNoteId] = useState(
-        (notes[0]?.id) || ""
-    );
+    const [notes, setNotes] = useState([]);
+    const [currentNoteId, setCurrentNoteId] = useState("");
 
 
     const currentNote = 
@@ -20,39 +18,47 @@ export default function App() {
 
     //Adds a note with a unique id (nanoid) to the list
     //of notes
-    function createNewNote() {
+    async function createNewNote() {
         const newNote = {
-            id: nanoid(),
             body: "# Type your markdown note's title here",
         };
-        setNotes((prevNotes) => [newNote, ...prevNotes]);
-        setCurrentNoteId(newNote.id);
+        const newNoteRef = await addDoc(notesCollection, newNote)
+        setCurrentNoteId(newNoteRef.id);
     }
 
 
     useEffect(()=> {
-        localStorage.setItem('notes', JSON.stringify(notes))
+        const unsubscribe = onSnapshot(notesCollection, function(snapshot) {
+            // sync local notes with snapshot
+            console.log("things are changing")
+            const notesArr = snapshot.docs.map(doc => ({
+                ...doc.data(),
+                id: doc.id
+            }))
+            setNotes(notesArr)
+        })
+        return unsubscribe
+    },[])
+
+    useEffect(() => {
+        if(!currentNoteId) {
+            setCurrentNoteId(notes[0]?.id)
+        }
     },[notes])
+
 
     //Checks all of the notes against their ID
     //if the ID matches, update the text
-    function updateNote(text) {
-
-        setNotes((oldNotes) => {
-            const newNotesArray = []
-            for(let note of oldNotes) {
-                note.id === currentNoteId ? 
-                    newNotesArray.unshift(note = {...note, body: text}) :
-                    newNotesArray.push(note)
-            }
-            return newNotesArray
-        });
+    async function updateNote(text) {
+        const docRef = doc(db, "notes", currentNoteId)
+        await setDoc(docRef, {body: text})
     }
     
-    function deleteNote(event, noteId) {
-        event.stopPropagation()
-        const filteredNotesArray = notes.filter((note) => note.id != noteId)
-        setNotes(filteredNotesArray)
+    async function deleteNote(event, noteId) {
+        //event.stopPropagation()
+        const docRef = doc(db, "notes", noteId)
+        await deleteDoc(docRef)
+        
     }
 
     return (
@@ -70,12 +76,11 @@ export default function App() {
                         newNote={createNewNote}
                         deleteNote={deleteNote}
                     />
-                    {currentNoteId && notes.length > 0 && (
-                        <Editor
-                            currentNote={currentNote}
-                            updateNote={updateNote}
-                        />
-                    )}
+                    <Editor
+                        currentNote={currentNote}
+                        updateNote={updateNote}
+                    />
+                   
                 </Split>
             ) : (
                 <div className="no-notes">
