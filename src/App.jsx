@@ -60,9 +60,12 @@ export default function App() {
     
     function deleteNote(event, noteId) {
         event.stopPropagation()
+        const filteredNotesArray = notes.filter((note) => note.id != noteId)
+        setNotes(filteredNotesArray)
+        
         // Your code here
     }
-    
+
     //returns the note that matches the currentNoteId
     //which is stored in state
     function findCurrentNote() {
@@ -86,6 +89,7 @@ export default function App() {
                         currentNote={findCurrentNote()}
                         setCurrentNoteId={setCurrentNoteId}
                         newNote={createNewNote}
+                        deleteNote={deleteNote}
                     />
                     {currentNoteId && notes.length > 0 && (
                         <Editor
