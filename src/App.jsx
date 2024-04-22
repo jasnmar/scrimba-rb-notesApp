@@ -33,7 +33,9 @@ export default function App() {
 
     useEffect(() => {
         const timeoutId = setTimeout(() => {
-            updateNote(tmpNoteText)
+            if (tmpNoteText !== currentNote.body) {
+                updateNote(tmpNoteText)
+            }
 
         }, 500)
         return () => clearTimeout(timeoutId)
@@ -84,7 +86,6 @@ export default function App() {
     //Checks all of the notes against their ID
     //if the ID matches, update the text
     async function updateNote(text) {
-        console.log('text:', text)
         const docRef = doc(db, "notes", currentNoteId)
         await setDoc(docRef, 
             {body: text, updatedAt: Date.now()}, 
