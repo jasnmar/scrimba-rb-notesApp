@@ -11,21 +11,24 @@ export default function App() {
 
     const [notes, setNotes] = useState([]);
     const [currentNoteId, setCurrentNoteId] = useState("");
+    const [tmpNoteText, setTmpNoteText] = useState()
 
     const currentNote = 
     notes.find(note => note.id === currentNoteId) || notes[0]
 
-        /**
+    /**
      * Challenge:
-     * 1. Add createdAt and updatedAt properties to the notes
-     *    When a note is first created, set the `createdAt` and `updatedAt`
-     *    properties to `Date.now()`. Whenever a note is modified, set the
-     *    `updatedAt` property to `Date.now()`.
-     * 
-     * 2. Create a new `sortedNotes` array (doesn't need to be saved 
-     *    in state) that orders the items in the array from 
-     *    most-recently-updated to least-recently-updated.
-     *    This may require a quick Google search.
+     * 1. Set up a new state variable called `tempNoteText`. Initialize 
+     *    it as an empty string
+     * 2. Change the Editor so that it uses `tempNoteText` and 
+     *    `setTempNoteText` for displaying and changing the text instead
+     *    of dealing directly with the `currentNote` data.
+     * 3. Create a useEffect that, if there's a `currentNote`, sets
+     *    the `tempNoteText` to `currentNote.body`. (This copies the
+     *    current note's text into the `tempNoteText` field so whenever 
+     *    the user changes the currentNote, the editor can display the 
+     *    correct text.
+     * 4. TBA
      */
 
     //Adds a note with a unique id (nanoid) to the list
@@ -40,7 +43,12 @@ export default function App() {
         setCurrentNoteId(newNoteRef.id);
     }
 
-
+    useEffect(()=> {
+        if(currentNote) {
+            setTmpNoteText(currentNote.body)
+        }
+    }, [currentNote])
+    
     useEffect(()=> {
         const unsubscribe = onSnapshot(notesCollection, function(snapshot) {
             // sync local notes with snapshot
@@ -96,8 +104,8 @@ export default function App() {
                         deleteNote={deleteNote}
                     />
                     <Editor
-                        currentNote={currentNote}
-                        updateNote={updateNote}
+                        tmpNoteText={tmpNoteText}
+                        setTmpNoteText={setTmpNoteText}
                     />
                    
                 </Split>
