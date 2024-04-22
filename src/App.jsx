@@ -31,6 +31,15 @@ export default function App() {
      * 4. TBA
      */
 
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            updateNote(tmpNoteText)
+
+        }, 500)
+        return () => clearTimeout(timeoutId)
+    }, [tmpNoteText])
+
+
     //Adds a note with a unique id (nanoid) to the list
     //of notes
     async function createNewNote() {
@@ -48,11 +57,11 @@ export default function App() {
             setTmpNoteText(currentNote.body)
         }
     }, [currentNote])
-    
+
     useEffect(()=> {
         const unsubscribe = onSnapshot(notesCollection, function(snapshot) {
             // sync local notes with snapshot
-            console.log("things are changing")
+            console.log("Snapshot Happening")
             const notesArr = snapshot.docs.map(doc => ({
                 ...doc.data(),
                 id: doc.id
@@ -75,6 +84,7 @@ export default function App() {
     //Checks all of the notes against their ID
     //if the ID matches, update the text
     async function updateNote(text) {
+        console.log('text:', text)
         const docRef = doc(db, "notes", currentNoteId)
         await setDoc(docRef, 
             {body: text, updatedAt: Date.now()}, 
