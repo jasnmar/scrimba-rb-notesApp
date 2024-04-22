@@ -22,7 +22,10 @@ export default function App() {
      *    properties to `Date.now()`. Whenever a note is modified, set the
      *    `updatedAt` property to `Date.now()`.
      * 
-     * 2. TBA
+     * 2. Create a new `sortedNotes` array (doesn't need to be saved 
+     *    in state) that orders the items in the array from 
+     *    most-recently-updated to least-recently-updated.
+     *    This may require a quick Google search.
      */
 
     //Adds a note with a unique id (nanoid) to the list
@@ -46,6 +49,9 @@ export default function App() {
                 ...doc.data(),
                 id: doc.id
             }))
+            notesArr.sort((note, nextNote) => { 
+                return note.updatedAt < nextNote.updatedAt ? 1 : -1
+            })
             setNotes(notesArr)
         })
         return unsubscribe
@@ -62,7 +68,9 @@ export default function App() {
     //if the ID matches, update the text
     async function updateNote(text) {
         const docRef = doc(db, "notes", currentNoteId)
-        await setDoc(docRef, {body: text})
+        await setDoc(docRef, 
+            {body: text, updatedAt: Date.now()}, 
+            {merge: true})
     }
     
     async function deleteNote(event, noteId) {
